@@ -1,0 +1,103 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <title>Test</title>
+</head>
+<html data-theme="dark"></html>
+
+<body>
+    <div class="hero" style="padding: 0 0 5%;">
+        <nav class="container-fluid">
+            <ul>
+                <li>
+                    <h1>App name</h1>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="container" style="background-color: #172129; padding: 3% 5% 3% 5%; border-radius: 20px;">
+        <center><h1>Log In</h1></center>
+        <div style="color: red;" hidden="true" id="wrongcode">Incorrect login!</div>
+        <input type="text" placeholder="username"  id="usernametext">
+        <input type="text" placeholder="password" id="passwordtext">
+        <button id="signin">sign in</button>
+    </main>
+
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPQBWucbYGT6KU5MUZFf6cuzvmhPoOtfU",
+      authDomain: "database-forwebsite.firebaseapp.com",
+      projectId: "database-forwebsite",
+      storageBucket: "database-forwebsite.appspot.com",
+      messagingSenderId: "921904138736",
+      appId: "1:921904138736:web:95ae0d3616abee77e03535",
+      measurementId: "G-0TEN9BP479"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase();
+
+    var username = ["admin", "mathias"];
+    var password = ["mathias12344", "matti123", "admin"]
+    var usernametext = document.getElementById("usernametext");
+    var passwordtext = document.getElementById("passwordtext");
+    var signin = document.getElementById("signin");
+    var wrongcode = document.getElementById("wrongcode");
+
+
+    function login() {
+        const dbref = ref(getDatabase());
+
+        get(child(dbref, "users/ " + usernametext.value)).then(snapshot => {
+            if (snapshot.exists()) {
+                document.cookie = "username=" + usernametext.value + ";" + "expires=" + new Date(2038, 0, 1).toUTCString();
+                window.location.replace("mainpage.html");
+            return;
+            }  else {
+            usernametext.ariaInvalid = "true";
+            passwordtext.ariaInvalid = "true";
+            wrongcode.hidden = false;
+            wrongcode.textContent = "The account does not exist. Have you checked if the password or username is correct?";
+            }
+        })
+    }
+
+    signin.onclick = function() {
+        if (usernametext.value.length > 0 && passwordtext.value.length > 0) {
+            login();
+        } else {
+            usernametext.ariaInvalid = "true";
+            passwordtext.ariaInvalid = "true";
+            wrongcode.hidden = false;
+            wrongcode.textContent = "Either password or username field is empty!"
+        }
+    }
+
+
+  </script>

@@ -1,0 +1,104 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <title>Test</title>
+</head>
+<html data-theme="dark"></html>
+
+<body>
+    <div class="hero" style="padding: 0 0 5%;">
+        <nav class="container-fluid">
+            <ul>
+                <li>
+                    <h1>App name</h1>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container">
+        
+        <center><h1>Main page</h1></center>
+
+    </div>
+</body>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBPQBWucbYGT6KU5MUZFf6cuzvmhPoOtfU",
+  authDomain: "database-forwebsite.firebaseapp.com",
+  projectId: "database-forwebsite",
+  storageBucket: "database-forwebsite.appspot.com",
+  messagingSenderId: "921904138736",
+  appId: "1:921904138736:web:95ae0d3616abee77e03535",
+  measurementId: "G-0TEN9BP479"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase();
+
+const dbref = ref(getDatabase());
+
+function getCookie(name) {
+  // Split all cookies into an array
+  var cookies = document.cookie.split(';');
+
+  // Loop through the cookies
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i];
+
+    // Trim leading and trailing spaces
+    cookie = cookie.trim();
+
+    // Check if the cookie starts with the name we're looking for
+    if (cookie.indexOf(name + '=') === 0) {
+      // Extract and return the cookie value
+      return cookie.substring(name.length + 1, cookie.length);
+    }
+  }
+
+  // Cookie not found
+  return null;
+}
+
+const username = getCookie("username");
+
+function deleteCookie(name) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970; path=/;`;
+}
+
+
+get(child(dbref, "users/ " + username)).then(snapshot => {
+            if (snapshot.exists()) {
+                console.log("User Identity Verfied");
+            }  else {
+                deleteCookie("username");
+                window.location.replace("index.html");
+            }
+        })
+</script>

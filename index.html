@@ -1,0 +1,53 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <title>Test</title>
+</head>
+<html data-theme="dark"></html>
+<body>
+
+    <div class="hero">
+        <nav class="container-fluid">
+            <ul>
+                <li>
+                    <h1>Task Minder</h1>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+                <li>
+                    <h3 style="font-weight: lighter;">text</h3>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="container">
+        <center><h1 style="padding: 0 0 12% 0;">Log in or Sign up</h1></center>
+            <div class="grid">
+                <button id="Log-in">Log in</button>
+                <button id="Sign-up">Sign up</button>
+            </div>
+            
+    </main>
+</body>
+
+<script>
+    var login = document.getElementById("Log-in");
+   var signup = document.getElementById("Sign-up");
+
+    login.onclick = function() {
+        window.location.replace("login.html");
+    }
+
+   signup.onclick = function() {
+       window.location.replace("Signup.html");
+    }
+</script>
+
