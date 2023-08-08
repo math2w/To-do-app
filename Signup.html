@@ -73,6 +73,39 @@
     var signin = document.getElementById("signin");
     var wrongcode = document.getElementById("wrongcode");
 
+    function getCookie(name) {
+  // Split all cookies into an array
+  var cookies = document.cookie.split(';');
+
+  // Loop through the cookies
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i];
+
+    // Trim leading and trailing spaces
+    cookie = cookie.trim();
+
+    // Check if the cookie starts with the name we're looking for
+    if (cookie.indexOf(name + '=') === 0) {
+      // Extract and return the cookie value
+      return cookie.substring(name.length + 1, cookie.length);
+    }
+  }
+
+  // Cookie not found
+  return null;
+}
+
+var username = getCookie("username");
+const dbref = ref(getDatabase());
+
+    get(child(dbref, "users/ " + username)).then(snapshot => {
+            if (snapshot.exists()) {
+                window.location.replace("mainpage.html");
+            }  else {
+                console.log("User not logged in.");
+            }
+        })
+
     function signUp() {
         const dbref = ref(getDatabase());
 
@@ -86,9 +119,11 @@
             }  else {
                 set(ref(database, 'users/ ' + usernametext.value), {
                     username: usernametext.value,
-                    password: passwordtext.value
+                    password: passwordtext.value,
+                    projects: ""
                 })
       document.cookie = "username=" + usernametext.value + ";" + "expires=" + new Date(2038, 0, 1).toUTCString();
+      window.location.reload();
             }
         })
     }

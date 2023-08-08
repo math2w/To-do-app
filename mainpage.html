@@ -28,19 +28,44 @@
         </nav>
     </div>
 
-    <div class="container">
-        
-        <center><h1>Main page</h1></center>
+<main class="container" style="background-color: #172129; padding: 3% 5% 0% 5%; border-radius: 20px;">
+    <center><h1>To do List</h1></center>
+    <center><button style="width: 200px; margin-top: -30px;" id="addprojbtn">Add Project</button></center>
+    <dialog id="dialog">
+        <article style="width: 1000px;">
+            <h3>Create a project.</h3>
+            <p>Enter a title and description.</p>
+            <input type="text" id="titletxt" placeholder="Title">
+            <input type="text" id="descriptiontxt" placeholder="Description">
+            <div style="color: red;" hidden="true" id="wrongtext">Please give the project a title and a description.</div>
+            <footer>
+                <a href="#cancel" id="cancelbtn" role="button" class="secondary">Cancel</a>
+                <a href="#confirm" id="confirmbtn" role="button">Create Project</a>
+            </footer>
+        </article>
+    </dialog>
+    <div style="background-color: #232f3d; width: 100%; height: 1%; padding: 0 0 0 108%; margin-left: -4%; border-radius: 5px;"></div>
 
-    </div>
+            <div style="padding: 30px 0;">
+            <button style="background-color: rgba(0, 0, 255, 0); border-color: #171f2900; font-size: 28px;" id="project" hidden="true">
+                Project name
+            </button>
+            
+        </div>
+        
+        
+
+
+        
+
+</main>
 </body>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+import { getDatabase, ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -64,6 +89,110 @@ const database = getDatabase();
 
 const dbref = ref(getDatabase());
 
+const cancelbtn = document.getElementById("cancelbtn");
+const confirmbtn = document.getElementById("confirmbtn");
+const titletxt = document.getElementById("titletxt");
+const descriptiontxt = document.getElementById("descriptiontxt");
+const dialog = document.getElementById("dialog");
+const addprojbtn = document.getElementById("addprojbtn");
+const wrongtext = document.getElementById("wrongtext");
+const username = getCookie("username");
+const project = document.getElementById("project");
+
+function id() {
+  return Math.floor(Math.random() * 999999999999999);
+}
+
+    async function getProjects() {
+        const snapshot = await get(child(dbref, "users/ " + username + "/projects"))
+        if (snapshot.exists()) {
+            let newestProject = null;
+            let newestTimestamp = 0;
+
+            snapshot.forEach(childSnapshot => {
+                const timestamp = childSnapshot.val().timestamp; // Adjust this based on your data structure
+                var clone = project.cloneNode(true);
+                clone.id = childSnapshot.val().uid;
+                console.log(childSnapshot.val().title);
+                clone.textContent = childSnapshot.val().title;
+                clone.hidden = false;
+
+                clone.onclick = function() {
+                    console.log(clone.id);
+                document.cookie = "projectID=" + clone.id + ";" + "expires=" + new Date(2038, 0, 1).toUTCString();
+                window.location.replace("project.html");
+                    
+                }
+
+                if (timestamp > newestTimestamp) {
+                    newestTimestamp = timestamp;
+                    newestProject = childSnapshot.val();
+                    console.log(newestProject);
+                }
+                project.after(clone);
+            });
+            console.log("Newest Item:", newestProject);
+        }        else {
+            console.log("No items found in the collection.");
+        }
+}
+
+await getProjects();
+
+addprojbtn.onclick = function() {
+    dialog.showModal();
+}
+
+cancelbtn.onclick = function() {
+    dialog.close();
+}
+
+confirmbtn.onclick = function() {
+    if (titletxt.value.length > 0 && descriptiontxt.value.length > 0) {
+        confirmbtn.ariaBusy = true;
+    cancelbtn.style = "pointer-events: none;";
+    createProject(titletxt.value, descriptiontxt.value);
+    } else if (descriptiontxt.value.length == 0 && titletxt.value.length == 0) {
+        wrongtext.hidden = false;
+        titletxt.ariaInvalid = true;
+        descriptiontxt.ariaInvalid = true;
+    }
+
+}
+
+function createProject(title, description) {
+    const dateObject = new Date();
+    let datetime = dateObject.toLocaleString();
+    let date = datetime.split(' ', 5).join(' ');
+    let uid = id();
+    get(child(dbref, "users/ " + username + "/projects")).then(snapshot => {
+            if (snapshot.exists()) {
+                const projref = ref(database, "users/ " + username + "/projects");
+
+                const newProject = {
+                    title: titletxt.value,
+                    description: descriptiontxt.value,
+                    timestamp: date,
+                    uid: uid
+                };
+
+
+                set(ref(database, "users/ " + username + "/projects/" + uid), {
+                    title: titletxt.value,
+                    description: descriptiontxt.value,
+                    timestamp: date,
+                    uid: uid
+                });
+
+
+                confirmbtn.ariaBusy = false;
+    cancelbtn.style = "pointer-events: auto;";
+    window.location.reload();
+            }  else {
+
+            }
+        })
+}
 function getCookie(name) {
   // Split all cookies into an array
   var cookies = document.cookie.split(';');
@@ -86,7 +215,6 @@ function getCookie(name) {
   return null;
 }
 
-const username = getCookie("username");
 
 function deleteCookie(name) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970; path=/;`;
