@@ -35,6 +35,7 @@
             <p>Name</p>
             <p></p>
             <p>Checkboxes</p>
+            
         </div>
         <dialog id="dialog">
             <article style="width: 1000px;">
@@ -57,12 +58,35 @@
                 </footer>
             </article>
         </dialog>
+
+        <dialog id="viewtask">
+            <article style="width: 1000px;">
+                <h3 id="taskname">Task name</h3>
+                <p id="description">Description</p>
+                <p id="importancetxt">Importance</p>
+                <footer>
+                    <a href="#cancel" id="closebtn" role="button" class="secondary">Close</a>
+                </footer>
+            </article>
+        </dialog>
+
+        <dialog id="deletetaskview">
+            <article style="width: 1000px;">
+                <h3>Do you want to delete this Task?</h3>
+                <p>You will not be able to recover it again. It will be gone FOREVER.</p>
+                <footer>
+                    <a href="#cancel" id="yesbtn" role="button" class="delbtn">Yes</a>
+                    <a href="#cancel" id="nobtn" role="button" class="secondary">No</a>
+                </footer>
+            </article>
+        </dialog>
+
         <div style="background-color: #232f3d; width: 100%; height: 1%; padding: 0 0 0 108%; margin-left: -4%; border-radius: 5px;"></div>
     
                 <div style="padding: 30px 0;">
                 <div id="clonediv">
                 <button style="background-color: rgba(0, 0, 255, 0); border-color: #171f2900; font-size: 28px; text-align: left;" id="project" hidden="true">
-                    Project name
+                    Task name
                 </button>
 
             </div>
@@ -75,6 +99,36 @@
     
     </main>
 </body>
+
+<style>
+
+
+    .trashbtn {
+        transition: 100ms;
+        background-color: #cccccc00;
+        background-image: url("images/trashcan_close.png");
+        background-size: cover;
+        border-color: #cccccc00;
+        width: 20px;
+        height: 42px;
+    }
+
+    .trashbtn:hover {
+        transform: scale(1.2);
+        background-image: url("images/trashcan_open.png");
+    }
+
+    .delbtn {
+        transition: 500ms;
+        background-color: #850a0a;
+        border-color: #850a0a;
+    }
+    .delbtn:hover{
+        transition: 500ms;
+        background-color: #df1010;
+        border-color: #df1010;
+    }
+</style>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
@@ -131,6 +185,18 @@ const wrongtext = document.getElementById("wrongtext");
 const username = getCookie("username");
 const select = document.getElementById("select");
 const project = document.getElementById("project");
+const viewtask = document.getElementById("viewtask");
+const tasktext = document.getElementById("taskname");
+const taskdescription = document.getElementById("description");
+const closebtn = document.getElementById("closebtn");
+const importancetxt = document.getElementById("importancetxt");
+const deletetaskview = document.getElementById("deletetaskview");
+const yesbtn = document.getElementById("yesbtn");
+const nobtn = document.getElementById("nobtn");
+
+closebtn.onclick = function() {
+    viewtask.close();
+}
 
 
 // change color on the dropdown.
@@ -156,6 +222,10 @@ cancelbtn.onclick = function() {
     dialog.close();
 }
 
+nobtn.onclick = function() {
+    deletetaskview.close();
+}
+
 confirmbtn.onclick = function() {
     if (titletxt.value.length > 0) {
         confirmbtn.ariaBusy = true;
@@ -170,6 +240,10 @@ confirmbtn.onclick = function() {
 
 const uid = getCookie("projectID");
 
+if (deletetaskview.open) {
+    viewtask.close();
+}
+
 async function getProjects() {
         const snapshot = await get(child(dbref, "users/ " + username + "/projects/" + uid + "/tasks"))
         if (snapshot.exists()) {
@@ -181,13 +255,16 @@ async function getProjects() {
                 var clone = project.cloneNode(true);
                 var importanceclone = document.createElement("p");
                 var checkbox = document.createElement("input");
+                var trashbtn = document.createElement("button");
+                trashbtn.classList.add("trashbtn");
                 checkbox.type = "checkbox";
                 
                 importanceclone.style = "font-size: 21.375px";
                 var node = document.createTextNode(childSnapshot.val().importance);
                 importanceclone.appendChild(node);
                 importanceclone.style = "margin-left: -1%; margin-top: -30px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: center;";
-                checkbox.style = "margin-left: 91%; margin-top: -6%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: center;";
+                checkbox.style = "margin-left: 91%; margin-top: -8%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: center;";
+                trashbtn.style = "margin-left: -8%; margin-top: -9.5%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: center;";
                 clone.id = childSnapshot.val().title;
                 console.log(childSnapshot.val());
                 clone.textContent = childSnapshot.val().title;
@@ -205,15 +282,47 @@ async function getProjects() {
 
                 clone.appendChild(importanceclone);
                 clone.appendChild(checkbox);
+                clone.appendChild(trashbtn);
 
+
+
+                trashbtn.addEventListener("click", function() {
+                    viewtask.close();
+                    deletetaskview.showModal();
+
+                });
                 checkbox.addEventListener("change", function() {
+                    viewtask.close();
                     console.log("changed");
                 })
 
+
+
+
+
+
                 clone.onclick = function() {
-                    console.log(clone.id);
+
+                    if (!deletetaskview.open) {
+
+           
+
+                    viewtask.showModal();
+                    tasktext.textContent = childSnapshot.val().title;
+                    description.textContent = childSnapshot.val().description;
+                    importancetxt.textContent = childSnapshot.val().importance;
                     
+                    if (childSnapshot.val().importance == "Not Important") {
+                        importancetxt.style = "color: green";
+                    }
+                    if (childSnapshot.val().importance == "Important") {
+                        importancetxt.style = "color: yellow";
+                    }
+                    if (childSnapshot.val().importance == "Very Important") {
+                        importancetxt.style = "color: red";
+                    }
                 }
+            }
 
                 if (timestamp > newestTimestamp) {
                     newestTimestamp = timestamp;
@@ -222,10 +331,14 @@ async function getProjects() {
                 }
                 project.after(clone);
             });
+            
             console.log("Newest Item:", newestProject);
         }        else {
             console.log("No items found in the collection.");
+            
         }
+        
+        
 }
 
 await getProjects();
