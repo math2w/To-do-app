@@ -4,7 +4,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <title>Test</title>
 </head>
-<html data-theme="dark"></html>
+<html data-theme="dark">
+
+</html>
 
 <body>
     <div class="hero" style="padding: 0 0 5%;">
@@ -29,13 +31,15 @@
     </div>
 
     <main class="container" style="background-color: #172129; padding: 3% 5% 0% 5%; border-radius: 20px;">
-        <center><h1>To do List</h1></center>
+        <center>
+            <h1>To do List</h1>
+        </center>
         <center><button style="width: 200px; margin-top: -30px;" id="addTask">Add Task</button></center>
         <div class="grid" style="margin-left: 3%; width: 121%;">
             <p>Name</p>
             <p></p>
             <p>Checkboxes</p>
-            
+
         </div>
         <dialog id="dialog">
             <article style="width: 1000px;">
@@ -51,7 +55,7 @@
                     <option value="Very Important" style="color: red;">Very Important</option>
                 </select>
                 <div style="color: red;" hidden="true" id="wrongtext">Please give the task a title.</div>
-                
+
                 <footer>
                     <a href="#cancel" id="cancelbtn" role="button" class="secondary">Cancel</a>
                     <a href="#confirm" id="confirmbtn" role="button">Create Task</a>
@@ -81,28 +85,30 @@
             </article>
         </dialog>
 
-        <div style="background-color: #232f3d; width: 100%; height: 1%; padding: 0 0 0 108%; margin-left: -4%; border-radius: 5px;"></div>
-    
-                <div style="padding: 30px 0;">
-                <div id="clonediv">
-                <button style="background-color: rgba(0, 0, 255, 0); border-color: #171f2900; font-size: 28px; text-align: left;" id="project" hidden="true">
+        <div
+            style="background-color: #232f3d; width: 100%; height: 1%; padding: 0 0 0 108%; margin-left: -4%; border-radius: 5px;">
+        </div>
+
+        <div style="padding: 30px 0;">
+            <div id="clonediv">
+                <button
+                    style="background-color: rgba(0, 0, 255, 0); border-color: #171f2900; font-size: 28px; text-align: left;"
+                    id="project" hidden="true">
                     Task name
                 </button>
 
             </div>
-            </div>
-            
-            
-    
-    
-            
-    
+        </div>
+
+
+
+
+
+
     </main>
 </body>
 
 <style>
-
-
     .trashbtn {
         transition: 100ms;
         background-color: #cccccc00;
@@ -123,7 +129,8 @@
         background-color: #850a0a;
         border-color: #850a0a;
     }
-    .delbtn:hover{
+
+    .delbtn:hover {
         transition: 500ms;
         background-color: #df1010;
         border-color: #df1010;
@@ -133,118 +140,118 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, child, push, orderByValue, equalTo } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+    import { getDatabase, ref, set, get, child, push, orderByValue, equalTo } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBPQBWucbYGT6KU5MUZFf6cuzvmhPoOtfU",
-  authDomain: "database-forwebsite.firebaseapp.com",
-  projectId: "database-forwebsite",
-  storageBucket: "database-forwebsite.appspot.com",
-  messagingSenderId: "921904138736",
-  appId: "1:921904138736:web:95ae0d3616abee77e03535",
-  measurementId: "G-0TEN9BP479"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyBPQBWucbYGT6KU5MUZFf6cuzvmhPoOtfU",
+        authDomain: "database-forwebsite.firebaseapp.com",
+        projectId: "database-forwebsite",
+        storageBucket: "database-forwebsite.appspot.com",
+        messagingSenderId: "921904138736",
+        appId: "1:921904138736:web:95ae0d3616abee77e03535",
+        measurementId: "G-0TEN9BP479"
+    };
 
-function getCookie(name) {
-  // Split all cookies into an array
-  var cookies = document.cookie.split(';');
+    function getCookie(name) {
+        // Split all cookies into an array
+        var cookies = document.cookie.split(';');
 
-  // Loop through the cookies
-  for (var i = 0; i < cookies.length; i++) {
-    var cookie = cookies[i];
+        // Loop through the cookies
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i];
 
-    // Trim leading and trailing spaces
-    cookie = cookie.trim();
+            // Trim leading and trailing spaces
+            cookie = cookie.trim();
 
-    // Check if the cookie starts with the name we're looking for
-    if (cookie.indexOf(name + '=') === 0) {
-      // Extract and return the cookie value
-      return cookie.substring(name.length + 1, cookie.length);
-    }
-  }
+            // Check if the cookie starts with the name we're looking for
+            if (cookie.indexOf(name + '=') === 0) {
+                // Extract and return the cookie value
+                return cookie.substring(name.length + 1, cookie.length);
+            }
+        }
 
-  // Cookie not found
-  return null;
-}
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase();
-
-const dbref = ref(getDatabase());
-// get html elements
-const cancelbtn = document.getElementById("cancelbtn");
-const confirmbtn = document.getElementById("confirmbtn");
-const titletxt = document.getElementById("titletxt");
-const descriptiontxt = document.getElementById("descriptiontxt");
-const dialog = document.getElementById("dialog");
-const addTask = document.getElementById("addTask");
-const wrongtext = document.getElementById("wrongtext");
-const username = getCookie("username");
-const select = document.getElementById("select");
-const project = document.getElementById("project");
-const viewtask = document.getElementById("viewtask");
-const tasktext = document.getElementById("taskname");
-const taskdescription = document.getElementById("description");
-const closebtn = document.getElementById("closebtn");
-const importancetxt = document.getElementById("importancetxt");
-const deletetaskview = document.getElementById("deletetaskview");
-const yesbtn = document.getElementById("yesbtn");
-const nobtn = document.getElementById("nobtn");
-
-closebtn.onclick = function() {
-    viewtask.close();
-}
-
-
-// change color on the dropdown.
-select.addEventListener("change", function() {
-    if (select.value == "Not Important") {
-        select.style = "color: green";
+        // Cookie not found
+        return null;
     }
 
-    if (select.value == "Important") {
-        select.style = "color: yellow";
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase();
+
+    const dbref = ref(getDatabase());
+    // get html elements
+    const cancelbtn = document.getElementById("cancelbtn");
+    const confirmbtn = document.getElementById("confirmbtn");
+    const titletxt = document.getElementById("titletxt");
+    const descriptiontxt = document.getElementById("descriptiontxt");
+    const dialog = document.getElementById("dialog");
+    const addTask = document.getElementById("addTask");
+    const wrongtext = document.getElementById("wrongtext");
+    const username = getCookie("username");
+    const select = document.getElementById("select");
+    const project = document.getElementById("project");
+    const viewtask = document.getElementById("viewtask");
+    const tasktext = document.getElementById("taskname");
+    const taskdescription = document.getElementById("description");
+    const closebtn = document.getElementById("closebtn");
+    const importancetxt = document.getElementById("importancetxt");
+    const deletetaskview = document.getElementById("deletetaskview");
+    const yesbtn = document.getElementById("yesbtn");
+    const nobtn = document.getElementById("nobtn");
+
+    closebtn.onclick = function () {
+        viewtask.close();
     }
 
-    if (select.value == "Very Important") {
-        select.style = "color: red";
+
+    // change color on the dropdown.
+    select.addEventListener("change", function () {
+        if (select.value == "Not Important") {
+            select.style = "color: green";
+        }
+
+        if (select.value == "Important") {
+            select.style = "color: yellow";
+        }
+
+        if (select.value == "Very Important") {
+            select.style = "color: red";
+        }
+    })
+    // show dialog when we click the add Task button
+    addTask.onclick = function () {
+        dialog.showModal();
     }
-})
-// show dialog when we click the add Task button
-addTask.onclick = function() {
-    dialog.showModal();
-}
-// and close it when we click the cancel button
-cancelbtn.onclick = function() {
-    dialog.close();
-}
-
-nobtn.onclick = function() {
-    deletetaskview.close();
-}
-
-confirmbtn.onclick = function() {
-    if (titletxt.value.length > 0) {
-        confirmbtn.ariaBusy = true;
-    cancelbtn.style = "pointer-events: none;";
-    createTask(titletxt.value, descriptiontxt.value);
-    } else if (titletxt.value.length == 0) {
-        wrongtext.hidden = false;
-        titletxt.ariaInvalid = true;
+    // and close it when we click the cancel button
+    cancelbtn.onclick = function () {
+        dialog.close();
     }
 
-}
+    nobtn.onclick = function () {
+        deletetaskview.close();
+    }
 
-const uid = getCookie("projectID");
+    confirmbtn.onclick = function () {
+        if (titletxt.value.length > 0) {
+            confirmbtn.ariaBusy = true;
+            cancelbtn.style = "pointer-events: none;";
+            createTask(titletxt.value, descriptiontxt.value);
+        } else if (titletxt.value.length == 0) {
+            wrongtext.hidden = false;
+            titletxt.ariaInvalid = true;
+        }
 
-if (deletetaskview.open) {
-    viewtask.close();
-}
+    }
 
-async function getProjects() {
+    const uid = getCookie("projectID");
+
+    if (deletetaskview.open) {
+        viewtask.close();
+    }
+
+    async function getProjects() {
         const snapshot = await get(child(dbref, "users/ " + username + "/projects/" + uid + "/tasks"))
         if (snapshot.exists()) {
             let newestProject = null;
@@ -258,7 +265,7 @@ async function getProjects() {
                 var trashbtn = document.createElement("button");
                 trashbtn.classList.add("trashbtn");
                 checkbox.type = "checkbox";
-                
+
                 importanceclone.style = "font-size: 21.375px";
                 var node = document.createTextNode(childSnapshot.val().importance);
                 importanceclone.appendChild(node);
@@ -279,76 +286,56 @@ async function getProjects() {
                 if (childSnapshot.val().importance == "Very Important") {
                     importanceclone.style = "color: red";
                 }
-
                 clone.appendChild(importanceclone);
                 clone.appendChild(checkbox);
                 clone.appendChild(trashbtn);
-
-
-
-                trashbtn.addEventListener("click", function() {
+                trashbtn.addEventListener("click", function () {
                     viewtask.close();
                     deletetaskview.showModal();
-
                 });
-                checkbox.addEventListener("change", function() {
+                checkbox.addEventListener("change", function () {
                     viewtask.close();
                     console.log("changed");
                 })
-
-
-
-
-
-
-                clone.onclick = function() {
+                clone.onclick = function () {
 
                     if (!deletetaskview.open) {
+                        viewtask.showModal();
+                        tasktext.textContent = childSnapshot.val().title;
+                        description.textContent = childSnapshot.val().description;
+                        importancetxt.textContent = childSnapshot.val().importance;
 
-           
-
-                    viewtask.showModal();
-                    tasktext.textContent = childSnapshot.val().title;
-                    description.textContent = childSnapshot.val().description;
-                    importancetxt.textContent = childSnapshot.val().importance;
-                    
-                    if (childSnapshot.val().importance == "Not Important") {
-                        importancetxt.style = "color: green";
+                        if (childSnapshot.val().importance == "Not Important") {
+                            importancetxt.style = "color: green";
+                        }
+                        if (childSnapshot.val().importance == "Important") {
+                            importancetxt.style = "color: yellow";
+                        }
+                        if (childSnapshot.val().importance == "Very Important") {
+                            importancetxt.style = "color: red";
+                        }
                     }
-                    if (childSnapshot.val().importance == "Important") {
-                        importancetxt.style = "color: yellow";
-                    }
-                    if (childSnapshot.val().importance == "Very Important") {
-                        importancetxt.style = "color: red";
-                    }
-                }
-            }
-
-                if (timestamp > newestTimestamp) {
-                    newestTimestamp = timestamp;
-                    newestProject = childSnapshot.val();
-                    console.log(newestProject);
                 }
                 project.after(clone);
             });
-            
+
             console.log("Newest Item:", newestProject);
-        }        else {
+        } else {
             console.log("No items found in the collection.");
-            
+
         }
-        
-        
-}
 
-await getProjects();
 
-function id() {
-  return Math.floor(Math.random() * 999999999999999);
-}
+    }
 
-function createTask(title, description) {
-    get(child(dbref, "users/ " + username + "/projects")).then(snapshot => {
+    await getProjects();
+
+    function id() {
+        return Math.floor(Math.random() * 999999999999999);
+    }
+
+    function createTask(title, description) {
+        get(child(dbref, "users/ " + username + "/projects")).then(snapshot => {
             if (snapshot.exists()) {
                 const projref = ref(database, "users/ " + username + "/projects");
                 const idd = id();
@@ -359,13 +346,13 @@ function createTask(title, description) {
                 });
 
                 confirmbtn.ariaBusy = false;
-    cancelbtn.style = "pointer-events: auto;";
-    window.location.reload();
-            }  else {
+                cancelbtn.style = "pointer-events: auto;";
+                window.location.reload();
+            } else {
 
             }
         })
-}
+    }
 
 
 </script>
