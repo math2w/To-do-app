@@ -11,18 +11,12 @@
         <nav class="container-fluid">
             <ul>
                 <li>
-                    <h1>App name</h1>
+                    <button id="back" style="background-color: #cccccc00; border-color: #cccccc00; font-size: 34px; font-weight: bolder;">To Do App</button>
                 </li>
             </ul>
             <ul>
                 <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
+                    <button id="logout" style="background-color: #cccccc00; border-color: #cccccc00; font-size: 26px; font-weight: lighter;">Log Out</button>
                 </li>
             </ul>
         </nav>
@@ -35,15 +29,27 @@
         <article style="width: 1000px;">
             <h3>Create a project.</h3>
             <p>Enter a title and description.</p>
-            <input type="text" id="titletxt" placeholder="Title">
+            <input type="text" id="titletxt" placeholder="Title" maxlength="50">
             <input type="text" id="descriptiontxt" placeholder="Description">
-            <div style="color: red;" hidden="true" id="wrongtext">Please give the project a title and a description.</div>
+            <div style="color: red;" hidden="true" id="wrongtext">Please give the project a title.</div>
             <footer>
                 <a href="#cancel" id="cancelbtn" role="button" class="secondary">Cancel</a>
                 <a href="#confirm" id="confirmbtn" role="button">Create Project</a>
             </footer>
         </article>
     </dialog>
+
+    <dialog id="deleteprojview">
+        <article style="width: 1000px;">
+            <h3>Do you want to delete this Project?</h3>
+            <p>You will not be able to recover it again. It will be gone FOREVER.</p>
+            <footer>
+                <a href="#cancel" id="yesbtn" role="button" class="delbtn">Yes</a>
+                <a href="#cancel" id="nobtn" role="button" class="secondary">No</a>
+            </footer>
+        </article>
+    </dialog>
+
     <div style="background-color: #232f3d; width: 100%; height: 1%; padding: 0 0 0 108%; margin-left: -4%; border-radius: 5px;"></div>
 
             <div style="padding: 30px 0;">
@@ -61,11 +67,40 @@
 </main>
 </body>
 
+<style>
+    .trashbtn {
+        transition: 100ms;
+        background-color: #cccccc00;
+        background-image: url("images/trashcan_close.png");
+        background-size: cover;
+        border-color: #cccccc00;
+        width: 20px;
+        height: 42px;
+    }
+
+    .trashbtn:hover {
+        transform: scale(1.2);
+        background-image: url("images/trashcan_open.png");
+    }
+
+    .delbtn {
+        transition: 500ms;
+        background-color: #850a0a;
+        border-color: #850a0a;
+    }
+
+    .delbtn:hover {
+        transition: 500ms;
+        background-color: #df1010;
+        border-color: #df1010;
+    }
+</style>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-import { getDatabase, ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+import { getDatabase, ref, set, get, child, push, remove } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -98,6 +133,40 @@ const addprojbtn = document.getElementById("addprojbtn");
 const wrongtext = document.getElementById("wrongtext");
 const username = getCookie("username");
 const project = document.getElementById("project");
+const deleteprojview = document.getElementById("deleteprojview");
+const logout = document.getElementById("logout");
+var currentprojID = 0;
+    const yesbtn = document.getElementById("yesbtn");
+    const nobtn = document.getElementById("nobtn");
+
+    function deletevalue(path) {
+            const dataRef = ref(database, path);
+
+            // Delete the value
+            remove(dataRef)
+                .then(() => {
+                    console.log("Data deleted successfully");
+                })
+                .catch((error) => {
+                    console.error("Error deleting data:", error);
+                });
+        }
+
+    nobtn.onclick = function () {
+        deleteprojview.close();
+    }
+
+    yesbtn.onclick = function () {
+        yesbtn.ariaBusy = true;
+            nobtn.style = "pointer-events: none;";
+        deletevalue("users/ " + username + "/projects/" + currentprojID);
+        window.location.reload();
+    };
+
+    logout.onclick = function () {
+        deleteCookie("username");
+        window.location.reload();
+    }
 
 function id() {
   return Math.floor(Math.random() * 999999999999999);
@@ -108,19 +177,36 @@ function id() {
         if (snapshot.exists()) {
             let newestProject = null;
             let newestTimestamp = 0;
-
+            let num = 0;
             snapshot.forEach(childSnapshot => {
+                
                 const timestamp = childSnapshot.val().timestamp; // Adjust this based on your data structure
                 var clone = project.cloneNode(true);
                 clone.id = childSnapshot.val().uid;
                 console.log(childSnapshot.val().title);
                 clone.textContent = childSnapshot.val().title;
                 clone.hidden = false;
+                if (num > 0) {
+                    var trashbtn = document.createElement("button");
+                trashbtn.classList.add("trashbtn");
+                trashbtn.style = "margin-left: -8%; margin-top: -4%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-align: center;";
+                clone.appendChild(trashbtn);
+                trashbtn.onclick = function () {
+                    deleteprojview.showModal();
+                    currentprojID = clone.id;
+                }
+                }
+                num += 1;
 
+  
                 clone.onclick = function() {
-                    console.log(clone.id);
+                    if (!deleteprojview.open) {
+                        
+                        console.log(clone.id);
                 document.cookie = "projectID=" + clone.id + ";" + "expires=" + new Date(2038, 0, 1).toUTCString();
                 window.location.replace("project.html");
+                    }
+
                     
                 }
 
@@ -148,14 +234,13 @@ cancelbtn.onclick = function() {
 }
 
 confirmbtn.onclick = function() {
-    if (titletxt.value.length > 0 && descriptiontxt.value.length > 0) {
+    if (titletxt.value.length > 0) {
         confirmbtn.ariaBusy = true;
     cancelbtn.style = "pointer-events: none;";
     createProject(titletxt.value, descriptiontxt.value);
-    } else if (descriptiontxt.value.length == 0 && titletxt.value.length == 0) {
+    } else if (titletxt.value.length == 0) {
         wrongtext.hidden = false;
         titletxt.ariaInvalid = true;
-        descriptiontxt.ariaInvalid = true;
     }
 
 }
@@ -190,6 +275,7 @@ function createProject(title, description) {
     window.location.reload();
             }  else {
 
+               
             }
         })
 }

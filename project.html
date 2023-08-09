@@ -13,18 +13,7 @@
         <nav class="container-fluid">
             <ul>
                 <li>
-                    <h1>App name</h1>
-                </li>
-            </ul>
-            <ul>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
+                    <button id="back" style="background-color: #cccccc00; border-color: #cccccc00; font-size: 34px; font-weight: bolder;">To Do App</button>
                 </li>
             </ul>
         </nav>
@@ -33,7 +22,9 @@
     <main class="container" style="background-color: #172129; padding: 3% 5% 0% 5%; border-radius: 20px;">
         <center>
             <h1>To do List</h1>
+            <p style="font-size: 28px; font-weight: lighter; margin-top: -5%; padding-bottom: 5%;" id="listname">Name</p>
         </center>
+        
         <center><button style="width: 200px; margin-top: -30px;" id="addTask">Add Task</button></center>
         <div class="grid" style="margin-left: 3%; width: 121%;">
             <p>Name</p>
@@ -45,8 +36,8 @@
             <article style="width: 1000px;">
                 <h3>Create Task</h3>
                 <p>Enter a title and description.</p>
-                <input type="text" id="titletxt" placeholder="Title">
-                <input type="text" id="descriptiontxt" placeholder="Description">
+                <input type="text" id="titletxt" placeholder="Title" maxlength="50">
+                <input type="text" id="descriptiontxt" placeholder="Description" maxlength="1000">
                 <!-- Select -->
                 <div>Select how important the task is.</div>
                 <select id="select" style="color: green;">
@@ -141,7 +132,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-    import { getDatabase, ref, set, get, child, push, orderByValue, equalTo } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+    import { getDatabase, ref, set, get, child, push, orderByValue, equalTo , update, remove } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBPQBWucbYGT6KU5MUZFf6cuzvmhPoOtfU",
@@ -153,6 +144,26 @@
         measurementId: "G-0TEN9BP479"
     };
 
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase();
+
+        function deletevalue(path) {
+            const dataRef = ref(database, path);
+
+            // Delete the value
+            remove(dataRef)
+                .then(() => {
+                    console.log("Data deleted successfully");
+                })
+                .catch((error) => {
+                    console.error("Error deleting data:", error);
+                });
+        }
+
+    
     function getCookie(name) {
         // Split all cookies into an array
         var cookies = document.cookie.split(';');
@@ -175,11 +186,6 @@
         return null;
     }
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const database = getDatabase();
-
     const dbref = ref(getDatabase());
     // get html elements
     const cancelbtn = document.getElementById("cancelbtn");
@@ -200,10 +206,52 @@
     const deletetaskview = document.getElementById("deletetaskview");
     const yesbtn = document.getElementById("yesbtn");
     const nobtn = document.getElementById("nobtn");
+    const back = document.getElementById("back");
+    const listname = document.getElementById("listname");
+    var currentaskid = 0;
+
+    const uid = getCookie("projectID");
+
+    async function findAndChangeValue(childKey, newValue) {
+  try {
+    const databaseRef = ref(database); // Reference to the root of the Firebase Realtime Database
+
+
+    // Find the current value
+    const snapshot = await get(child(databaseRef, childKey));
+    const currentValue = snapshot.val();
+    console.log(currentValue);
+    if (currentValue !== null) {
+
+        await set(child(databaseRef, childKey), newValue);
+
+      // Set the new value back to Firebase
+
+
+    } else {
+        console.log("could not find value");
+    }
+  } catch (error) {
+    console.error('Error occurred while updating the value:', error);
+  }
+}
+
+
+
+    back.onclick = function() {
+        window.location.replace("mainpage.html");
+    }
 
     closebtn.onclick = function () {
         viewtask.close();
     }
+
+    yesbtn.onclick = function () {
+        yesbtn.ariaBusy = true;
+            nobtn.style = "pointer-events: none;";
+        deletevalue("users/ " + username + "/projects/" + uid + "/tasks/ " + currentaskid);
+        window.location.reload();
+    };
 
 
     // change color on the dropdown.
@@ -245,27 +293,34 @@
 
     }
 
-    const uid = getCookie("projectID");
 
     if (deletetaskview.open) {
         viewtask.close();
     }
 
     async function getProjects() {
+
         const snapshot = await get(child(dbref, "users/ " + username + "/projects/" + uid + "/tasks"))
+
+        const snapshot2 = await get(child(dbref, "users/ " + username + "/projects/" + uid))
+
+        if (snapshot2.exists()) {
+            listname.textContent = snapshot2.val().title;
+        }
+
         if (snapshot.exists()) {
             let newestProject = null;
             let newestTimestamp = 0;
 
             snapshot.forEach(childSnapshot => {
-                const timestamp = childSnapshot.val().importance; // Adjust this based on your data structure
                 var clone = project.cloneNode(true);
                 var importanceclone = document.createElement("p");
                 var checkbox = document.createElement("input");
                 var trashbtn = document.createElement("button");
                 trashbtn.classList.add("trashbtn");
                 checkbox.type = "checkbox";
-
+                checkbox.id = childSnapshot.val().id;
+                checkbox.checked = childSnapshot.val().isdone;
                 importanceclone.style = "font-size: 21.375px";
                 var node = document.createTextNode(childSnapshot.val().importance);
                 importanceclone.appendChild(node);
@@ -292,11 +347,19 @@
                 trashbtn.addEventListener("click", function () {
                     viewtask.close();
                     deletetaskview.showModal();
+                    currentaskid = childSnapshot.val().id;
                 });
                 checkbox.addEventListener("change", function () {
                     viewtask.close();
-                    console.log("changed");
+    
+                            const newdata = {
+                                isdone: true
+                            }
+                            const dataRef = ref(database, );
+                            console.log("users/" + username + "/projects/" + uid + "/tasks/" + checkbox.id + "/isdone");         
+                            findAndChangeValue("users/ " + username + "/projects/" + uid + "/tasks/ " + childSnapshot.val().id + "/isdone", checkbox.checked);
                 })
+                    
                 clone.onclick = function () {
 
                     if (!deletetaskview.open) {
@@ -342,7 +405,9 @@
                 set(ref(database, "users/ " + username + "/projects/" + uid + "/tasks/ " + idd), {
                     title: titletxt.value,
                     description: descriptiontxt.value,
-                    importance: select.value
+                    importance: select.value,
+                    id: idd,
+                    isdone: false
                 });
 
                 confirmbtn.ariaBusy = false;
@@ -354,5 +419,14 @@
         })
     }
 
+    get(child(dbref, "users/ " + username)).then(snapshot => {
+            if (snapshot.exists()) {
+                console.log("User Identity Verfied");
+            }  else {
+                deleteCookie("username");
+                window.location.replace("index.html");
+            }
+        })
+</script>
 
 </script>

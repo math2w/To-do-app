@@ -11,18 +11,7 @@
         <nav class="container-fluid">
             <ul>
                 <li>
-                    <h1>App name</h1>
-                </li>
-            </ul>
-            <ul>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
-                </li>
-                <li>
-                    <h3 style="font-weight: lighter;">text</h3>
+                    <button id="back" style="background-color: #cccccc00; border-color: #cccccc00; font-size: 34px; font-weight: bolder;">To Do App</button>
                 </li>
             </ul>
         </nav>
@@ -69,6 +58,12 @@
     var passwordtext = document.getElementById("passwordtext");
     var signin = document.getElementById("signin");
     var wrongcode = document.getElementById("wrongcode");
+    const back = document.getElementById("back");
+
+
+    back.onclick = function() {
+        window.location.replace("index.html");
+    }
 
 
     function getCookie(name) {
