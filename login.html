@@ -7,6 +7,7 @@
 <html data-theme="dark"></html>
 
 <body>
+    <div id="hidediv" hidden="true">
     <div class="hero" style="padding: 0 0 5%;">
         <nav class="container-fluid">
             <ul>
@@ -20,10 +21,11 @@
     <main class="container" style="background-color: #172129; padding: 3% 5% 3% 5%; border-radius: 20px;">
         <center><h1>Log In</h1></center>
         <div style="color: red;" hidden="true" id="wrongcode">Incorrect login!</div>
-        <input type="text" placeholder="username"  id="usernametext">
-        <input type="text" placeholder="password" id="passwordtext">
+        <input type="text" placeholder="username"  id="usernametext" maxlength="10">
+        <input type="password" placeholder="password" id="passwordtext" maxlength="20">
         <button id="signin">sign in</button>
     </main>
+</div>
 
 </body>
 
@@ -59,6 +61,7 @@
     var signin = document.getElementById("signin");
     var wrongcode = document.getElementById("wrongcode");
     const back = document.getElementById("back");
+    const hidediv = document.getElementById("hidediv");
 
 
     back.onclick = function() {
@@ -96,6 +99,7 @@ const dbref = ref(getDatabase());
                 window.location.replace("mainpage.html");
             }  else {
                 console.log("User not logged in.");
+                hidediv.hidden = false;
             }
         })
 

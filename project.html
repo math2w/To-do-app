@@ -9,11 +9,17 @@
 </html>
 
 <body>
+    <div id="hidediv" hidden="true">
     <div class="hero" style="padding: 0 0 5%;">
         <nav class="container-fluid">
             <ul>
                 <li>
                     <button id="back" style="background-color: #cccccc00; border-color: #cccccc00; font-size: 34px; font-weight: bolder;">To Do App</button>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <p style="margin-right: 10%; width: 100px; text-align: center;" id="usernametxt">Username</p>
                 </li>
             </ul>
         </nav>
@@ -97,6 +103,7 @@
 
 
     </main>
+</div>
 </body>
 
 <style>
@@ -208,6 +215,10 @@
     const nobtn = document.getElementById("nobtn");
     const back = document.getElementById("back");
     const listname = document.getElementById("listname");
+    const hidediv = document.getElementById("hidediv");
+    var usernametxt = document.getElementById("usernametxt");
+usernametxt.textContent = username;
+
     var currentaskid = 0;
 
     const uid = getCookie("projectID");
@@ -319,7 +330,6 @@
                 var trashbtn = document.createElement("button");
                 trashbtn.classList.add("trashbtn");
                 checkbox.type = "checkbox";
-                checkbox.id = childSnapshot.val().id;
                 checkbox.checked = childSnapshot.val().isdone;
                 importanceclone.style = "font-size: 21.375px";
                 var node = document.createTextNode(childSnapshot.val().importance);
@@ -383,8 +393,11 @@
             });
 
             console.log("Newest Item:", newestProject);
+            hidediv.hidden = false;
         } else {
             console.log("No items found in the collection.");
+            hidediv.hidden = false;
+        
 
         }
 
